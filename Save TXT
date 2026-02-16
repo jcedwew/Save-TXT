@@ -1,0 +1,45 @@
+const solanaWeb3 = require('@solana/web3.js');
+const fs = require('fs');
+
+// Ваш RPC-эндпоинт QuickNode
+const QUICKNODE_RPC_URL = 'https://radial-tiniest-replica.solana-mainnet.quiknode.pro/176be93aecc4b83d257d13ffa4f3664ddb7eb792';
+
+// Подключение к Solana
+const connection = new solanaWeb3.Connection(QUICKNODE_RPC_URL, 'confirmed');
+
+// Хеши транзакций, которые нужно сохранить
+const TRANSACTION_SIGNATURES = [
+    '5yQ19qNEWC67hqST2hNq4mPQQCeUKgA79haXtJgwvDanvuk4rckSyGsdeFjKasNmwFHVLpo3i4Khwbb735xS4Lz9',
+    '2iY1AXrX17ZY5ZHpEsaSHwdnbb7PQKoQCxP2UHhyiFqQNSuBssVphtD4Cj4C1FXyofJP1K7Goz72KGxiz3M2p918',
+    '2MqNUFNsEYsvqbu9dtDUTNwmjytAQRmYwmoyMJENxQWDXhM4xRSGFpNonNpdgNZBTEKdysFhRkmVq5WRBH2uXc3N',
+    '5ASbdu9GP8dNtjSe6RfMA3UvMXsuRxyjFj6R4RmGXYB1uwnnzBRXrDd8JJu1gpvyyEfwhpxJKGEEjSezeHoeV7Z5',
+    // Добавьте остальные хеши транзакций
+];
+
+// Функция для получения данных по транзакциям и сохранения в файл
+async function saveTransactionDetails() {
+    const transactionDetails = [];
+
+    for (let signature of TRANSACTION_SIGNATURES) {
+        try {
+            console.log(`Получаем данные о транзакции: ${signature}`);
+            const transaction = await connection.getParsedTransaction(signature, { maxSupportedTransactionVersion: 0 });
+            
+            if (transaction) {
+                transactionDetails.push(transaction);
+            } else {
+                console.log(`Транзакция ${signature} не найдена.`);
+            }
+        } catch (error) {
+            console.error(`Ошибка при получении данных о транзакции ${signature}:`, error);
+        }
+    }
+
+    // Сохранение данных транзакций в файл JSON
+    const filePath = 'selected_transactions.json';
+    fs.writeFileSync(filePath, JSON.stringify(transactionDetails, null, 2), 'utf8');
+    console.log(`Данные транзакций сохранены в файл: ${filePath}`);
+}
+
+// Запуск функции сохранения данных
+saveTransactionDetails();
