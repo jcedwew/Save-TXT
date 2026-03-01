@@ -1,0 +1,18 @@
+// Функция для получения данных по транзакциям и сохранения в файл
+async function saveTransactionDetails() {
+    const transactionDetails = [];
+
+    for (let signature of TRANSACTION_SIGNATURES) {
+        try {
+            console.log(`Получаем данные о транзакции: ${signature}`);
+            const transaction = await connection.getParsedTransaction(signature, { maxSupportedTransactionVersion: 0 });
+            
+            if (transaction) {
+                transactionDetails.push(transaction);
+            } else {
+                console.log(`Транзакция ${signature} не найдена.`);
+            }
+        } catch (error) {
+            console.error(`Ошибка при получении данных о транзакции ${signature}:`, error);
+        }
+    }
